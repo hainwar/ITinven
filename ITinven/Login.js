@@ -8,7 +8,7 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    if (email === 'admin@tvri.com' && password === 'password123') {
+    if (email === '111' && password === '123') {
       navigation.navigate('Home'); // Navigate to Home on successful login
     } else {
       alert('Invalid email or password');

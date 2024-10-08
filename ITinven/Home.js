@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
 
-export default function App() {
-  const navigation = useNavigation(); // Dapatkan objek navigasi
+export default function HomeScreen() {
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
