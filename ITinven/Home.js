@@ -19,7 +19,7 @@ export default function HomeScreen() {
 
       {/* Red Container Section */}
       <View style={styles.infoContainer}>
-        <Text style={styles.infoTitle}>PEMINJAMAN,PENGEMBALIAN,CEK STATUS BARANG?</Text>
+        <Text style={styles.infoTitle}>PEMINJAMAN, PENGEMBALIAN, CEK STATUS BARANG?</Text>
         <Text style={styles.infoText}>
           Gampang kok sisa buka menu, isi sesuai, klik proses
           jika data berhasil didaftarkan...
@@ -32,16 +32,19 @@ export default function HomeScreen() {
           style={styles.menuItem} 
           onPress={() => navigation.navigate('Peminjaman')} // Navigasi ke Peminjaman saat di klik
         >
-          <FontAwesome name="credit-card" size={24} color="brown" />
+          <FontAwesome name="book" size={24} color="brown" /> {/* Ganti ikon Peminjaman */}
           <Text style={styles.menuText}>PEMINJAMAN</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <FontAwesome name="credit-card" size={24} color="brown" />
+        
+        <TouchableOpacity style={styles.menuItem}
+        onPress={() => navigation.navigate('Pengembalian')}>
+          <FontAwesome name="undo" size={24} color="brown" /> {/* Ganti ikon Pengembalian */}
           <Text style={styles.menuText}>PENGEMBALIAN</Text>
         </TouchableOpacity>
+        
         <TouchableOpacity style={styles.menuItem}>
-          <MaterialIcons name="payment" size={24} color="brown" />
-          <Text style={styles.menuText}>CEK STATUS BARANG</Text>
+          <FontAwesome name="list-alt" size={24} color="brown" /> {/* Ganti ikon Daftar Barang */}
+          <Text style={styles.menuText}>DAFTAR BARANG</Text>
         </TouchableOpacity>
       </ScrollView>
 

@@ -1,22 +1,35 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, TextInput } from 'react-native';
-import { FontAwesome, MaterialIcons, Entypo } from '@expo/vector-icons';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
+import axios from 'axios';
 
 export default function App() {
   const [note, setNote] = useState('');
 
+  const handleSubmit = () => {
+    if (note.trim()) {
+      axios.post('http://localhost:5000/api/peminjaman', { note })
+        .then(response => {
+          Alert.alert('Sukses', response.data);
+          setNote('');  // Clear input after success
+        })
+        .catch(error => {
+          console.error('Error saving data: ', error);
+          Alert.alert('Error', 'Gagal menyimpan data.');
+        });
+    } else {
+      Alert.alert('Error', 'Catatan tidak boleh kosong.');
+    }
+  };
+
   return (
     <View style={styles.container}>
-      
-      {/* Red Container Section */}
       <View style={styles.infoContainer}>
         <Text style={styles.infoTitle}>PEMINJAMAN</Text>
       </View>
-      
-      {/* Main Menu */}
+
       <ScrollView>
         <View style={styles.menuItem}>
-          <Text style={styles.menuText}>lampirkan Catatan:</Text>
+          <Text style={styles.menuText}>Lampirkan Catatan:</Text>
           <TextInput
             style={styles.input}
             multiline
@@ -27,10 +40,9 @@ export default function App() {
           />
         </View>
       </ScrollView>
-      
-      {/* Bottom Navigation */}
+
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>LANJUTKAN</Text>
         </TouchableOpacity>
       </View>
@@ -43,26 +55,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0070B8',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#001F3F',
-  },
-  logo: {
-    width: 50,
-    height: 50,
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  subtitle: {
-    fontSize: 12,
-    color: '#ddd',
-  },
   infoContainer: {
     backgroundColor: '#001F3F',
     padding: 16,
@@ -73,11 +65,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  infoText: {
-    color: '#fff',
-    marginTop: 8,
-    fontSize: 14,
   },
   menuItem: {
     padding: 15,
@@ -90,7 +77,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    marginTop: 50,
   },
   menuText: {
     fontSize: 16,

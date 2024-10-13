@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Alert } from 'react-native';
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons, Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Peminjaman() {
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [photo, setPhoto] = useState(null);
+  const navigation = useNavigation();
 
-  // Fungsi untuk membuka kamera secara langsung
   const takePhoto = async () => {
-    // Meminta izin untuk mengakses kamera
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
     if (!permissionResult.granted) {
@@ -18,27 +18,31 @@ export default function Peminjaman() {
       return;
     }
 
-    // Membuka kamera untuk mengambil foto
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
-      aspect: [4, 3], // Atur rasio foto
-      quality: 0.5, // Mengatur kualitas gambar untuk penghematan ruang
+      aspect: [4, 3],
+      quality: 0.5,
     });
 
     if (!result.canceled) {
-      // Menyimpan URI foto yang diambil
       setPhoto(result.assets[0].uri);
     }
   };
 
-  // Fungsi untuk menghapus foto
   const deletePhoto = () => {
-    setPhoto(null); // Menghapus foto yang sudah diambil
+    setPhoto(null);
+  };
+
+  const handleAjukan = () => {
+    navigation.navigate('konfirmas_peminjaman');
+  };
+
+  const handleBackToHome = () => {
+    navigation.navigate('Home');
   };
 
   return (
     <View style={styles.container}>
-      {/* Info Section */}
       <View style={styles.infoContainer}>
         <Text style={styles.infoTitle}>PEMINJAMAN</Text>
         <Text style={styles.infoText}>
@@ -46,42 +50,46 @@ export default function Peminjaman() {
         </Text>
       </View>
 
-      {/* Main Form */}
       <ScrollView>
-        {/* Nama Field */}
         <View style={styles.inputContainer}>
           <FontAwesome name="user" size={24} color="brown" />
           <TextInput
             style={styles.input}
-            placeholder="Nama"
+            placeholder="Nama Peminjam"
             value={name}
             onChangeText={text => setName(text)}
           />
         </View>
 
-        {/* Tanggal Field */}
         <View style={styles.inputContainer}>
-          <FontAwesome name="calendar" size={24} color="brown" />
+          <Entypo name="tools" size={24} color="brown" />
           <TextInput
             style={styles.input}
-            placeholder="Tanggal"
-            value={date}
-            onChangeText={text => setDate(text)}
+            placeholder="Nama Alat"
           />
         </View>
 
-        {/* Ambil Photo */}
+        <View style={styles.inputContainer}>
+          <FontAwesome name="calendar" size={24} color="brown" />
+          <input type="date" name="birthday" style={styles.dateInput}></input>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <FontAwesome name="user" size={24} color="brown" />
+          <TextInput
+            style={styles.input}
+            placeholder="Nama Petugas"
+          />
+        </View>
+
         <TouchableOpacity style={styles.menuItem} onPress={takePhoto}>
           <MaterialIcons name="photo-camera" size={24} color="brown" />
           <Text style={styles.menuText}>AMBIL PHOTO</Text>
         </TouchableOpacity>
 
-        {/* Tampilkan Foto */}
         {photo && (
           <View style={styles.photoContainer}>
             <Image source={{ uri: photo }} style={styles.image} />
-
-            {/* Tombol Hapus */}
             <TouchableOpacity style={styles.deleteButton} onPress={deletePhoto}>
               <MaterialIcons name="delete" size={24} color="red" />
               <Text style={styles.deleteButtonText}>HAPUS PHOTO</Text>
@@ -90,9 +98,13 @@ export default function Peminjaman() {
         )}
       </ScrollView>
 
-      {/* Ajukan Button */}
+      {/* Susun tombol "Kembali ke Home" dan "Ajukan" di baris yang sama dan tukar posisinya */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.submitButton}>
+        <TouchableOpacity style={styles.homeButton} onPress={handleBackToHome}>
+          <Text style={styles.homeButtonText}>KEMBALI KE HOME</Text>  {/* Hilangkan ikon home */}
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.submitButton} onPress={handleAjukan}>
           <FontAwesome name="check" size={24} color="white" />
           <Text style={styles.submitButtonText}>AJUKAN</Text>
         </TouchableOpacity>
@@ -108,9 +120,9 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     backgroundColor: '#001F3F',
-    padding: 16,
-    borderRadius: 10,
-    margin: 16,
+    padding: 12,
+    borderRadius: 8,
+    margin: 12,
   },
   infoTitle: {
     color: '#fff',
@@ -119,77 +131,98 @@ const styles = StyleSheet.create({
   },
   infoText: {
     color: '#fff',
-    marginTop: 8,
-    fontSize: 14,
+    marginTop: 4,
+    fontSize: 13,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    padding: 15,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 10,
+    padding: 10,
+    marginHorizontal: 12,
+    marginVertical: 6,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
   },
   input: {
-    marginLeft: 16,
-    fontSize: 16,
+    marginLeft: 12,
+    fontSize: 14,
     color: '#333',
     flex: 1,
+  },
+  dateInput: {
+    flex: 1,
+    marginLeft: 12,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    padding: 10,
     backgroundColor: '#fff',
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 10,
+    marginHorizontal: 12,
+    marginVertical: 6,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
   },
   menuText: {
-    marginLeft: 16,
-    fontSize: 16,
+    marginLeft: 12,
+    fontSize: 14,
     color: '#333',
   },
   bottomNav: {
-    justifyContent: 'center',
+    flexDirection: 'row',  // Buat tombol sejajar
+    justifyContent: 'space-evenly',  // Jarak yang seimbang
     alignItems: 'center',
     backgroundColor: '#001F3F',
-    paddingVertical: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   submitButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#28a745',
-    padding: 15,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    marginHorizontal: 16,
   },
   submitButtonText: {
     color: 'white',
-    fontSize: 16,
-    marginLeft: 10,
+    fontSize: 14,
+    marginLeft: 8,
+  },
+  homeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0070B8',
+    padding: 12,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  homeButtonText: {
+    color: 'white',
+    fontSize: 14,
   },
   image: {
-    width: 200, // Perkecil ukuran gambar
-    height: 150,
-    margin: 16,
-    borderRadius: 10,
+    width: 160,
+    height: 120,
+    margin: 12,
+    borderRadius: 8,
   },
   photoContainer: {
     alignItems: 'center',
@@ -198,13 +231,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffdddd',
-    padding: 10,
-    borderRadius: 10,
+    padding: 8,
+    borderRadius: 8,
     marginTop: 10,
   },
   deleteButtonText: {
-    marginLeft: 10,
-    fontSize: 16,
+    marginLeft: 8,
+    fontSize: 14,
     color: 'red',
   },
 });
