@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native'; // Import hook for navigation
 
-export default function App() {
+export default function CatatanScreen() {
   const [note, setNote] = useState('');
+  const navigation = useNavigation(); // Hook untuk navigasi
 
   const handleSubmit = () => {
     if (note.trim()) {
@@ -19,6 +21,11 @@ export default function App() {
     } else {
       Alert.alert('Error', 'Catatan tidak boleh kosong.');
     }
+  };
+
+  const handleBack = () => {
+    // Gunakan navigation.navigate untuk menuju ke halaman Peminjaman
+    navigation.navigate('Peminjaman');
   };
 
   return (
@@ -42,6 +49,9 @@ export default function App() {
       </ScrollView>
 
       <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.button} onPress={handleBack}>
+          <Text style={styles.buttonText}>KEMBALI</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>LANJUTKAN</Text>
         </TouchableOpacity>
@@ -50,6 +60,7 @@ export default function App() {
   );
 }
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -93,17 +104,21 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     backgroundColor: '#f0f0f0',
     paddingVertical: 10,
     borderTopWidth: 1,
     borderColor: '#ccc',
+    paddingHorizontal: 16,
   },
   button: {
+    flex: 1,
     backgroundColor: '#001F3F',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
-    marginHorizontal: 16,
+    marginHorizontal: 5,
   },
   buttonText: {
     color: '#fff',

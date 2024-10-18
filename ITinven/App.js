@@ -5,6 +5,7 @@ import Login from './frontend /Login'; // Hapus spasi yang tidak diinginkan
 import Register from './frontend /Register';
 import Home from './frontend /Home';    // Pastikan nama dan jalur benar
 import Peminjaman from './frontend /Peminjaman';
+import Pengembalian from './frontend /Pengembalian';
 import konfirmas_peminjaman from './frontend /konfirmas_peminjaman';
 import konfirmas_pengembalian from './frontend /konfirmas_pengembalian';
 
@@ -35,6 +36,14 @@ export default function App() {
         <Stack.Screen 
           name="Peminjaman" 
           component={Peminjaman} 
+          options={{ 
+            headerLeft: () => null,
+            gestureEnabled: false 
+          }} 
+        />
+        <Stack.Screen 
+          name="Pengembalian" 
+          component={Pengembalian} 
           options={{ 
             headerLeft: () => null,
             gestureEnabled: false 

@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
-import axios from 'axios';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-      alert(response.data.message);
-      if (response.status === 200) {
-        navigation.navigate('Home');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Login gagal, email atau password salah');
+  // Hardcoded credentials
+  const validEmail = 'user@example.com';
+  const validPassword = 'password123';
+
+  const handleLogin = () => {
+    // Compare input with hardcoded credentials
+    if (email === validEmail && password === validPassword) {
+      alert('Login successful!');
+      navigation.navigate('Home');
+    } else {
+      alert('Login failed, incorrect email or password');
     }
   };
 

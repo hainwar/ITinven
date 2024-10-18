@@ -1,59 +1,41 @@
 const express = require('express');
-const cors = require('cors');
-const multer = require('multer');
-const path = require('path');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
-// Inisialisasi Aplikasi Express
+// Inisialisasi aplikasi Express
 const app = express();
+app.use(bodyParser.json());
 
-// Middleware
-app.use(express.json()); // Express sudah mendukung body-parser bawaan
-app.use(cors());
+// Ganti URI ini dengan URI Anda sendiri dari MongoDB Atlas
+const mongoURI = 'mongodb+srv://dataBarangITTVRI:RtXdXgr4ebcxYtrP@databarangittvri.wum9i.mongodb.net/?retryWrites=true&w=majority';
 
-// Koneksi ke MongoDB
-mongoose.connect('mongodb+srv://<dataBarangITTVRI>:RtXdXgr4ebcxYtrP@cluster0.mongodb.net/forloginDB?retryWrites=true&w=majority', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log('MongoDB connected'))
-  .catch(err => console.log('Connection error:', err.message));
+// Hubungkan ke MongoDB Atlas (hapus opsi yang tidak diperlukan)
+mongoose.connect(mongoURI)
+    .then(() => console.log('MongoDB Atlas connected!'))
+    .catch((err) => console.error('Connection error', err));
 
-// Konfigurasi penyimpanan untuk foto
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, './uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage });
-
-// Route GET untuk root URL
-app.get('/', (req, res) => {
-  res.send('Selamat datang di API Peminjaman Barang');
+// Skema dan Model MongoDB
+const BarangSchema = new mongoose.Schema({
+    nama: String,
+    jumlah: Number,
+    lokasi: String,
 });
 
-// Rute API Peminjaman
-app.use('/api/peminjaman', require('./backend/routes/peminjaman'));
+const Barang = mongoose.model('Barang', BarangSchema);
 
-// Rute API Register dan Login
-app.use('/api/auth', require('./backend/routes/auth'));  // Ditambahkan untuk handle register dan login
-
-// Endpoint untuk mengunggah gambar
-app.post('/api/upload', upload.single('photo'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'Foto tidak ditemukan!' });
-  }
-  res.status(200).json({
-    message: 'Foto berhasil diunggah!',
-    photoUrl: `/uploads/${req.file.filename}`
-  });
+// Endpoint untuk menyimpan data barang
+app.post('/api/barang', async (req, res) => {
+    const { nama, jumlah, lokasi } = req.body;
+    const newBarang = new Barang({ nama, jumlah, lokasi });
+    try {
+        await newBarang.save();
+        res.status(201).send('Data barang berhasil disimpan.');
+    } catch (error) {
+        res.status(500).send('Gagal menyimpan data barang.');
+    }
 });
 
-// Menyajikan folder uploads untuk diakses secara publik
-app.use('/uploads', express.static('uploads'));
-
-// Jalankan Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Jalankan server pada port 5000
+app.listen(5000, () => {
+    console.log('Server berjalan di port 5000');
+});

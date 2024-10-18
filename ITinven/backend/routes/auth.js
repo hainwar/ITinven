@@ -1,10 +1,9 @@
 // routes/auth.js
-
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // Mengasumsikan model User ada
+const User = require('./backandmodels/User'); 
 require('dotenv').config(); // Untuk menggunakan variabel lingkungan
 
 // Route untuk Register

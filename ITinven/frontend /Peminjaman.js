@@ -6,7 +6,9 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function Peminjaman() {
   const [name, setName] = useState('');
+  const [alat, setAlat] = useState('');
   const [date, setDate] = useState('');
+  const [petugas, setPetugas] = useState('');
   const [photo, setPhoto] = useState(null);
   const navigation = useNavigation();
 
@@ -34,6 +36,13 @@ export default function Peminjaman() {
   };
 
   const handleAjukan = () => {
+    // Validation check for empty fields
+    if (!name || !alat || !date || !petugas || !photo) {
+      Alert.alert('Error', 'Semua kolom wajib diisi sebelum melanjutkan.');
+      return;
+    }
+    
+    // Proceed if all fields are filled
     navigation.navigate('konfirmas_peminjaman');
   };
 
@@ -66,12 +75,19 @@ export default function Peminjaman() {
           <TextInput
             style={styles.input}
             placeholder="Nama Alat"
+            value={alat}
+            onChangeText={text => setAlat(text)}
           />
         </View>
 
         <View style={styles.inputContainer}>
           <FontAwesome name="calendar" size={24} color="brown" />
-          <input type="date" name="birthday" style={styles.dateInput}></input>
+          <input
+            type="date"
+            style={styles.dateInput}
+            value={date}
+            onChange={e => setDate(e.target.value)}
+          />
         </View>
 
         <View style={styles.inputContainer}>
@@ -79,6 +95,8 @@ export default function Peminjaman() {
           <TextInput
             style={styles.input}
             placeholder="Nama Petugas"
+            value={petugas}
+            onChangeText={text => setPetugas(text)}
           />
         </View>
 
@@ -98,10 +116,9 @@ export default function Peminjaman() {
         )}
       </ScrollView>
 
-      {/* Susun tombol "Kembali ke Home" dan "Ajukan" di baris yang sama dan tukar posisinya */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.homeButton} onPress={handleBackToHome}>
-          <Text style={styles.homeButtonText}>KEMBALI KE HOME</Text>  {/* Hilangkan ikon home */}
+          <Text style={styles.homeButtonText}>KEMBALI KE HOME</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.submitButton} onPress={handleAjukan}>
@@ -178,8 +195,8 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   bottomNav: {
-    flexDirection: 'row',  // Buat tombol sejajar
-    justifyContent: 'space-evenly',  // Jarak yang seimbang
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     backgroundColor: '#001F3F',
     paddingVertical: 8,
