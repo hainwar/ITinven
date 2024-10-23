@@ -5,18 +5,9 @@ const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Hardcoded credentials
-  const validEmail = 'user@example.com';
-  const validPassword = 'password123';
-
   const handleLogin = () => {
-    // Compare input with hardcoded credentials
-    if (email === validEmail && password === validPassword) {
-      alert('Login successful!');
-      navigation.navigate('Home');
-    } else {
-      alert('Login failed, incorrect email or password');
-    }
+    // Bypass email and password check, auto-login
+    navigation.navigate('Home');
   };
 
   return (

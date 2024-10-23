@@ -3,13 +3,15 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image,
 import { FontAwesome, MaterialIcons, Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios'; // Import axios untuk mengirim data ke backend
 
 export default function Peminjaman() {
   const [name, setName] = useState('');
   const [alat, setAlat] = useState('');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(new Date());
   const [petugas, setPetugas] = useState('');
   const [photo, setPhoto] = useState(null);
+  const [errors, setErrors] = useState({});
   const navigation = useNavigation();
 
   const takePhoto = async () => {
@@ -35,15 +37,39 @@ export default function Peminjaman() {
     setPhoto(null);
   };
 
-  const handleAjukan = () => {
-    // Validation check for empty fields
-    if (!name || !alat || !date || !petugas || !photo) {
+  const validateFields = () => {
+    let tempErrors = {};
+    if (!name) tempErrors.name = true;
+    if (!alat) tempErrors.alat = true;
+    if (!date) tempErrors.date = true;
+    if (!petugas) tempErrors.petugas = true;
+    if (!photo) tempErrors.photo = true;
+    setErrors(tempErrors);
+    
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const handleAjukan = async () => {
+    if (!validateFields()) {
       Alert.alert('Error', 'Semua kolom wajib diisi sebelum melanjutkan.');
       return;
     }
-    
-    // Proceed if all fields are filled
-    navigation.navigate('konfirmas_peminjaman');
+
+    // Kirim data ke server menggunakan axios dengan IP komputer lokal
+    try {
+      const response = await axios.post('http://192.168.1.xxx:5000/api/peminjaman', {
+        namaPeminjam: name,
+        alat,
+        tanggalPinjam: new Date(date), // Konversi ke format Date
+        namaPetugas: petugas,
+        foto: photo
+      });
+      Alert.alert('Sukses', 'Data peminjaman berhasil diajukan.');
+      navigation.navigate('konfirmas_peminjaman');
+    } catch (error) {
+      Alert.alert('Error', 'Gagal mengajukan peminjaman.');
+      console.error(error.response ? error.response.data : error); // Log error yang lebih jelas
+    }
   };
 
   const handleBackToHome = () => {
@@ -60,7 +86,7 @@ export default function Peminjaman() {
       </View>
 
       <ScrollView>
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, errors.name && styles.errorInput]}>
           <FontAwesome name="user" size={24} color="brown" />
           <TextInput
             style={styles.input}
@@ -69,8 +95,13 @@ export default function Peminjaman() {
             onChangeText={text => setName(text)}
           />
         </View>
+        {errors.name && (
+          <Text style={styles.errorMessage}>
+            <FontAwesome name="exclamation-circle" size={14} color="red" /> Kolom ini wajib diisi
+          </Text>
+        )}
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, errors.alat && styles.errorInput]}>
           <Entypo name="tools" size={24} color="brown" />
           <TextInput
             style={styles.input}
@@ -79,6 +110,11 @@ export default function Peminjaman() {
             onChangeText={text => setAlat(text)}
           />
         </View>
+        {errors.alat && (
+          <Text style={styles.errorMessage}>
+            <FontAwesome name="exclamation-circle" size={14} color="red" /> Kolom ini wajib diisi
+          </Text>
+        )}
 
         <View style={styles.inputContainer}>
           <FontAwesome name="calendar" size={24} color="brown" />
@@ -90,7 +126,7 @@ export default function Peminjaman() {
           />
         </View>
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, errors.petugas && styles.errorInput]}>
           <FontAwesome name="user" size={24} color="brown" />
           <TextInput
             style={styles.input}
@@ -99,11 +135,21 @@ export default function Peminjaman() {
             onChangeText={text => setPetugas(text)}
           />
         </View>
+        {errors.petugas && (
+          <Text style={styles.errorMessage}>
+            <FontAwesome name="exclamation-circle" size={14} color="red" /> Kolom ini wajib diisi
+          </Text>
+        )}
 
         <TouchableOpacity style={styles.menuItem} onPress={takePhoto}>
           <MaterialIcons name="photo-camera" size={24} color="brown" />
           <Text style={styles.menuText}>AMBIL PHOTO</Text>
         </TouchableOpacity>
+        {errors.photo && (
+          <Text style={styles.errorMessage}>
+            <FontAwesome name="exclamation-circle" size={14} color="red" /> Foto wajib diambil
+          </Text>
+        )}
 
         {photo && (
           <View style={styles.photoContainer}>
@@ -171,9 +217,15 @@ const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
   },
-  dateInput: {
-    flex: 1,
-    marginLeft: 12,
+  errorInput: {
+    borderColor: 'red',
+    borderWidth: 1,
+  },
+  errorMessage: {
+    color: 'red',
+    marginLeft: 20,
+    marginTop: -5,
+    marginBottom: 10,
   },
   menuItem: {
     flexDirection: 'row',
@@ -189,72 +241,52 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  menuText: {
-    marginLeft: 12,
-    fontSize: 14,
-    color: '#333',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    backgroundColor: '#001F3F',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  submitButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#28a745',
-    padding: 12,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 14,
-    marginLeft: 8,
-  },
-  homeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#0070B8',
-    padding: 12,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  homeButtonText: {
-    color: 'white',
-    fontSize: 14,
+  photoContainer: {
+    marginHorizontal: 12,
+    marginTop: 10,
   },
   image: {
-    width: 160,
-    height: 120,
-    margin: 12,
-    borderRadius: 8,
-  },
-  photoContainer: {
-    alignItems: 'center',
+    width: 100,
+    height: 100,
+    borderRadius: 10,
   },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffdddd',
-    padding: 8,
-    borderRadius: 8,
-    marginTop: 10,
+    marginTop: 5,
   },
   deleteButtonText: {
-    marginLeft: 8,
-    fontSize: 14,
     color: 'red',
+    marginLeft: 5,
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    padding: 12,
+    backgroundColor: '#001F3F',
+  },
+  homeButton: {
+    backgroundColor: '#D80032',
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  homeButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    marginLeft: 8,
+  },
+  submitButton: {
+    backgroundColor: '#0070B8',
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    marginLeft: 8,
   },
 });

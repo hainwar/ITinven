@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Alert, StatusBar } from 'react-native';
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, Alert } from 'react-native';
+import { FontAwesome, MaterialIcons, Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useNavigation } from '@react-navigation/native'; // Impor navigation hook
+import { useNavigation } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function Peminjaman() {
+export default function Pengembalian() {
   const [name, setName] = useState('');
-  const [date, setDate] = useState('');
+  const [alat, setAlat] = useState('');
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [petugas, setPetugas] = useState('');
   const [photo, setPhoto] = useState(null);
-  const navigation = useNavigation(); // Gunakan navigation
+  const [errors, setErrors] = useState({});
+  const navigation = useNavigation();
 
   const takePhoto = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -33,19 +38,40 @@ export default function Peminjaman() {
     setPhoto(null);
   };
 
+  const validateFields = () => {
+    let tempErrors = {};
+    if (!name) tempErrors.name = true;
+    if (!alat) tempErrors.alat = true;
+    if (!date) tempErrors.date = true;
+    if (!petugas) tempErrors.petugas = true;
+    if (!photo) tempErrors.photo = true;
+    setErrors(tempErrors);
+    
+    return Object.keys(tempErrors).length === 0;
+  };
+
   const handleAjukan = () => {
-    // Pindah ke halaman konfirmasi pengembalian
+    if (!validateFields()) {
+      Alert.alert('Error', 'Semua kolom wajib diisi sebelum melanjutkan.');
+      return;
+    }
+
     navigation.navigate('konfirmas_pengembalian');
   };
 
   const handleBackToHome = () => {
-    // Navigasi kembali ke halaman Home
     navigation.navigate('Home');
+  };
+
+  const onDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0070B8" />
       <View style={styles.infoContainer}>
         <Text style={styles.infoTitle}>PENGEMBALIAN</Text>
         <Text style={styles.infoText}>
@@ -54,41 +80,70 @@ export default function Peminjaman() {
       </View>
 
       <ScrollView>
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, errors.name && styles.errorInput]}>
           <FontAwesome name="user" size={24} color="brown" />
           <TextInput
             style={styles.input}
-            placeholder="Nama Peminjam"
+            placeholder="Nama Pengembali"
             value={name}
             onChangeText={text => setName(text)}
           />
         </View>
+        {errors.name && (
+          <Text style={styles.errorMessage}>
+            <FontAwesome name="exclamation-circle" size={14} color="red" /> Kolom ini wajib diisi
+          </Text>
+        )}
 
-        <View style={styles.inputContainer}>
-          <MaterialIcons name="construction" size={24} color="brown" /> 
+        <View style={[styles.inputContainer, errors.alat && styles.errorInput]}>
+          <Entypo name="tools" size={24} color="brown" />
           <TextInput
             style={styles.input}
             placeholder="Nama Alat"
+            value={alat}
+            onChangeText={text => setAlat(text)}
+          />
+        </View>
+        {errors.alat && (
+          <Text style={styles.errorMessage}>
+            <FontAwesome name="exclamation-circle" size={14} color="red" /> Kolom ini wajib diisi
+          </Text>
+        )}
+         <View style={styles.inputContainer}>
+          <FontAwesome name="calendar" size={24} color="brown" />
+          <input
+            type="date"
+            style={styles.dateInput}
+            value={date}
+            onChange={e => setDate(e.target.value)}
           />
         </View>
 
-        <View style={styles.inputContainer}>
-          <FontAwesome name="calendar" size={24} color="brown" />
-          <input type="date" name="birthday" style={styles.dateInput}></input>
-        </View>
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, errors.petugas && styles.errorInput]}>
           <FontAwesome name="user" size={24} color="brown" />
           <TextInput
             style={styles.input}
             placeholder="Nama Petugas"
+            value={petugas}
+            onChangeText={text => setPetugas(text)}
           />
         </View>
+        {errors.petugas && (
+          <Text style={styles.errorMessage}>
+            <FontAwesome name="exclamation-circle" size={14} color="red" /> Kolom ini wajib diisi
+          </Text>
+        )}
 
         <TouchableOpacity style={styles.menuItem} onPress={takePhoto}>
           <MaterialIcons name="photo-camera" size={24} color="brown" />
           <Text style={styles.menuText}>AMBIL PHOTO</Text>
         </TouchableOpacity>
+        {errors.photo && (
+          <Text style={styles.errorMessage}>
+            <FontAwesome name="exclamation-circle" size={14} color="red" /> Foto wajib diambil
+          </Text>
+        )}
 
         {photo && (
           <View style={styles.photoContainer}>
@@ -102,8 +157,8 @@ export default function Peminjaman() {
       </ScrollView>
 
       <View style={styles.bottomNav}>
-      <TouchableOpacity style={styles.homeButton} onPress={handleBackToHome}>
-          <Text style={styles.homeButtonText}>KEMBALI KE HOME</Text>  {/* Hilangkan ikon home */}
+        <TouchableOpacity style={styles.homeButton} onPress={handleBackToHome}>
+          <Text style={styles.homeButtonText}>KEMBALI KE HOME</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.submitButton} onPress={handleAjukan}>
@@ -119,7 +174,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0070B8',
-    paddingTop: StatusBar.currentHeight || 0, // Adjust for top padding
   },
   infoContainer: {
     backgroundColor: '#001F3F',
@@ -140,8 +194,8 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0', // Softer background color for inputs
-    padding: 12,
+    backgroundColor: '#fff',
+    padding: 10,
     marginHorizontal: 12,
     marginVertical: 6,
     borderRadius: 8,
@@ -157,15 +211,21 @@ const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
   },
-  dateInput: {
-    flex: 1,
-    marginLeft: 12,
+  errorInput: {
+    borderColor: 'red',
+    borderWidth: 1,
+  },
+  errorMessage: {
+    color: 'red',
+    marginLeft: 20,
+    marginTop: -5,
+    marginBottom: 10,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    backgroundColor: '#f0f0f0',
+    padding: 10,
+    backgroundColor: '#fff',
     marginHorizontal: 12,
     marginVertical: 6,
     borderRadius: 8,
@@ -175,74 +235,52 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  menuText: {
-    marginLeft: 12,
-    fontSize: 14,
-    color: '#333',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'center', // Center buttons
-    alignItems: 'center',
-    backgroundColor: '#001F3F',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  homeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#0070B8',
-    padding: 12,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  backButtonText: {
-    color: 'white',
-    fontSize: 14,
-    marginLeft: 8,
-  },
-  submitButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#28a745',
-    padding: 12,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
-    marginHorizontal: 8, // Space between buttons
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 14,
-    marginLeft: 8,
+  photoContainer: {
+    marginHorizontal: 12,
+    marginTop: 10,
   },
   image: {
-    width: 160,
-    height: 120,
-    margin: 12,
-    borderRadius: 8,
-  },
-  photoContainer: {
-    alignItems: 'center',
+    width: 100,
+    height: 100,
+    borderRadius: 10,
   },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffdddd',
-    padding: 8,
-    borderRadius: 8,
-    marginTop: 10,
+    marginTop: 5,
   },
   deleteButtonText: {
-    marginLeft: 8,
-    fontSize: 14,
     color: 'red',
+    marginLeft: 5,
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',  // Agar tombol lebih ke tengah
+    padding: 12,
+    backgroundColor: '#001F3F',
+  },
+  homeButton: {
+    backgroundColor: '#D80032',
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  homeButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    marginLeft: 8,
+  },
+  submitButton: {
+    backgroundColor: '#0070B8',
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    marginLeft: 8,
   },
 });
