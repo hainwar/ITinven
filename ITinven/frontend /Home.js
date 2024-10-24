@@ -39,13 +39,14 @@ export default function HomeScreen() {
         
         <TouchableOpacity style={styles.menuItem}
         onPress={() => navigation.navigate('Pengembalian')}>
-          <FontAwesome name="undo" size={24} color="brown" /> {/* Ganti ikon Pengembalian */}
+          <FontAwesome name="undo" size={24} color="brown" /> 
           <Text style={styles.menuText}>PENGEMBALIAN</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.menuItem}>
-          <FontAwesome name="list-alt" size={24} color="brown" /> {/* Ganti ikon Daftar Barang */}
-          <Text style={styles.menuText}>DAFTAR BARANG</Text>
+        <TouchableOpacity style={styles.menuItem} 
+          onPress={() => navigation.navigate('data')}> 
+          <FontAwesome name="list-alt" size={24} color="brown" /> 
+          <Text style={styles.menuText}>DATA PEMINJAMAN&PENGEMBALIAN</Text>
         </TouchableOpacity>
       </ScrollView>
 

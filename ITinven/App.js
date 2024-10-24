@@ -8,6 +8,7 @@ import Peminjaman from './frontend /Peminjaman';
 import Pengembalian from './frontend /Pengembalian';
 import konfirmas_peminjaman from './frontend /konfirmas_peminjaman';
 import konfirmas_pengembalian from './frontend /konfirmas_pengembalian';
+import data from './frontend /data';
 
 const Stack = createNativeStackNavigator();
 
@@ -67,7 +68,15 @@ export default function App() {
             gestureEnabled: false 
           }} 
         />
-      </Stack.Navigator>
+          <Stack.Screen 
+          name="data" 
+          component={data}
+          options={{ 
+            headerLeft: () => null,
+            gestureEnabled: false 
+          }} 
+          />
+          </Stack.Navigator>
     </NavigationContainer>
   );
 }
