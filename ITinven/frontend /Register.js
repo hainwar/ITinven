@@ -7,18 +7,37 @@ const Register = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Regular expressions for validation
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
   const handleRegister = async () => {
+    // Validate email format
+    if (!emailRegex.test(email)) {
+      alert('Format email tidak valid');
+      return;
+    }
+
+    // Validate password strength
+    if (!passwordRegex.test(password)) {
+      alert('Password harus minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan karakter khusus');
+      return;
+    }
+
+    // Check if passwords match
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', { email, password });
+      // Ganti URL ini dengan URL backend Anda yang sebenarnya
+      const response = await axios.post('http://localhost:8000/api/auth/register', { email, password });
+      console.log('Response:', response.data); // Untuk debug respons
       alert(response.data.message);
       navigation.navigate('Login');
     } catch (error) {
-      console.error(error);
+      console.error('Error:', error.response ? error.response.data : error.message);
       alert('Registrasi gagal, coba lagi');
     }
   };
@@ -26,8 +45,6 @@ const Register = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Register for IT Inventori</Text>
-
-      
 
       <TextInput
         style={styles.input}
@@ -79,13 +96,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 32,
     fontWeight: 'bold',
-  },
-  instructions: {
-    color: '#fff',
-    marginBottom: 16,
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 22,
   },
   input: {
     width: '100%',
