@@ -1,14 +1,42 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Bypass email and password check, auto-login
-    navigation.navigate('Home');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert('Email dan password wajib diisi.');
+      return;
+    }
+
+    try {
+      const response = await fetch('https://redesigned-spoon-r4ggj6xwgp453w5r4-3000.app.github.dev/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+      console.log('Response from Backend:', result); // Debugging
+
+      if (response.ok) {
+        // Simpan token ke AsyncStorage
+        await AsyncStorage.setItem('token', result.token);
+
+        alert(result.message); // Tampilkan pesan sukses
+        navigation.navigate('Home'); // Navigasi ke halaman Home
+      } else {
+        alert(result.message || 'Gagal login.');
+      }
+    } catch (error) {
+      console.error('Error connecting to Backend:', error); // Debugging
+      alert('Terjadi kesalahan. Silakan coba lagi.');
+    }
   };
 
   return (
