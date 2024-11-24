@@ -13,6 +13,8 @@ const Login = ({ navigation }) => {
     }
 
     try {
+      console.log('Login request body:', { email, password }); // Debugging log
+
       const response = await fetch('https://redesigned-spoon-r4ggj6xwgp453w5r4-3000.app.github.dev/api/auth/login', {
         method: 'POST',
         headers: {
@@ -22,19 +24,20 @@ const Login = ({ navigation }) => {
       });
 
       const result = await response.json();
-      console.log('Response from Backend:', result); // Debugging
+      console.log('Response from Backend:', result); // Debugging log
 
       if (response.ok) {
-        // Simpan token ke AsyncStorage
         await AsyncStorage.setItem('token', result.token);
+        const storedToken = await AsyncStorage.getItem('token'); // Debugging log
+        console.log('Stored token:', storedToken);
 
-        alert(result.message); // Tampilkan pesan sukses
-        navigation.navigate('Home'); // Navigasi ke halaman Home
+        alert(result.message);
+        navigation.navigate('Home');
       } else {
         alert(result.message || 'Gagal login.');
       }
     } catch (error) {
-      console.error('Error connecting to Backend:', error); // Debugging
+      console.error('Error connecting to Backend:', error); // Debugging log
       alert('Terjadi kesalahan. Silakan coba lagi.');
     }
   };

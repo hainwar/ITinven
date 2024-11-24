@@ -1,53 +1,80 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { JWT_SECRET } = process.env;
 
 // Controller untuk registrasi
 const register = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, username, password, confirmPassword } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username dan password wajib diisi.' });
+  // Validasi input
+  if (!email || !username || !password || !confirmPassword) {
+    return res.status(400).json({ message: 'Semua field wajib diisi.' });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: 'Password dan konfirmasi password tidak cocok.' });
   }
 
   try {
-    const existingUser = await User.findOne({ username });
+    // Cek apakah email sudah digunakan
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
+      return res.status(400).json({ message: 'Email sudah digunakan.' });
+    }
+
+    // Cek apakah username sudah digunakan
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
       return res.status(400).json({ message: 'Username sudah digunakan.' });
     }
 
-    const user = new User({ username, password });
+    // Simpan pengguna baru
+    const user = new User({
+      email: email.toLowerCase(),
+      username,
+      password,
+    });
     await user.save();
+    console.log('User registered:', user); // Debugging log
 
     res.status(201).json({ message: 'Registrasi berhasil.' });
   } catch (error) {
+    console.error('Error during registration:', error.message); // Debugging log
     res.status(500).json({ message: 'Terjadi kesalahan server.', error: error.message });
   }
 };
 
 // Controller untuk login
 const login = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username dan password wajib diisi.' });
+  // Validasi input
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email dan password wajib diisi.' });
   }
 
   try {
-    const user = await User.findOne({ username });
+    // Cari pengguna berdasarkan email
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(400).json({ message: 'Username atau password salah.' });
+      console.log('User not found for email:', email.toLowerCase()); // Debugging log
+      return res.status(400).json({ message: 'Email atau password salah.' });
     }
 
+    // Bandingkan password
     const isPasswordValid = await user.comparePassword(password);
+    console.log('Password comparison result:', isPasswordValid); // Debugging log
+
     if (!isPasswordValid) {
-      return res.status(400).json({ message: 'Username atau password salah.' });
+      return res.status(400).json({ message: 'Email atau password salah.' });
     }
 
+    // Buat token JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    console.log('Generated token:', token); // Debugging log
+
     res.status(200).json({ message: 'Login berhasil.', token });
   } catch (error) {
+    console.error('Error during login:', error.message); // Debugging log
     res.status(500).json({ message: 'Terjadi kesalahan server.', error: error.message });
   }
 };
