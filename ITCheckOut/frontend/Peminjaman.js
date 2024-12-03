@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image,
 import { FontAwesome, MaterialIcons, Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Peminjaman() {
   const [name, setName] = useState('');
@@ -48,14 +49,32 @@ export default function Peminjaman() {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleAjukan = () => {
+  const handleAjukan = async () => {
     if (!validateFields()) {
       Alert.alert('Error', 'Semua kolom wajib diisi sebelum melanjutkan.');
       return;
     }
 
-    Alert.alert('Sukses', 'Data peminjaman berhasil diajukan.');
-    navigation.navigate('konfirmas_peminjaman');
+    const peminjamanData = {
+      name,
+      alat,
+      date,
+      petugas,
+      photo
+    };
+
+    try {
+      const existingData = await AsyncStorage.getItem('historyData');
+      const newHistory = existingData ? JSON.parse(existingData) : [];
+      newHistory.push(peminjamanData);
+      await AsyncStorage.setItem('historyData', JSON.stringify(newHistory));
+
+      Alert.alert('Sukses', 'Data peminjaman berhasil diajukan.');
+      navigation.navigate('data');
+    } catch (error) {
+      Alert.alert('Error', 'Gagal menyimpan data peminjaman.');
+      console.error(error);
+    }
   };
 
   const handleBackToHome = () => {
@@ -87,21 +106,19 @@ export default function Peminjaman() {
           </Text>
         )}
 
-        <View style={[styles.inputContainer, errors.alat && styles.errorInput]}>
-          <Entypo name="tools" size={24} color="brown" />
-          <TextInput
-            style={styles.input}
-            placeholder="Nama Alat"
-            value={alat}
-            onChangeText={text => setAlat(text)}
-          />
-        </View>
-        {errors.alat && (
-          <Text style={styles.errorMessage}>
-            <FontAwesome name="exclamation-circle" size={14} color="red" /> Kolom ini wajib diisi
-          </Text>
-        )}
+          <View style={[styles.inputContainer, errors.alat && styles.errorInput]}>
+            <Entypo name="tools" size={24} color="brown" />
+            <TextInput
+              style={[styles.input, { height: 120 }]} // Menyesuaikan tinggi
+              placeholder="Nama Alat"
+              value={alat}
+              onChangeText={text => setAlat(text)}
+              multiline={true}  // Mengaktifkan multiline
+              textAlignVertical="top" // Memastikan teks berada di atas
+            />
+          </View>
 
+        
         <View style={styles.inputContainer}>
           <FontAwesome name="calendar" size={24} color="brown" />
           <input
@@ -187,19 +204,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    padding: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     marginHorizontal: 12,
     marginVertical: 6,
-    borderRadius: 8,
+    borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 3,
-    elevation: 3,
+    elevation: 4,
   },
   input: {
     marginLeft: 12,
-    fontSize: 14,
+    fontSize: 16,
     color: '#333',
     flex: 1,
   },
@@ -213,19 +231,31 @@ const styles = StyleSheet.create({
     marginTop: -5,
     marginBottom: 10,
   },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 12,
+  },
+  dateInput: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
+    marginLeft: 12,
+  },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: 12,
     backgroundColor: '#fff',
     marginHorizontal: 12,
     marginVertical: 6,
-    borderRadius: 8,
+    borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 3,
-    elevation: 3,
+    elevation: 4,
+    paddingLeft: 16,
   },
   photoContainer: {
     marginHorizontal: 12,
@@ -275,4 +305,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 8,
   },
+  alatInput: {
+    height: 100,  // Memperbesar tinggi input alat
+  },
+
 });
