@@ -11,6 +11,14 @@ const cors = require('cors'); // Tambahkan ini
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const fs = require('fs');
+
+const uploadsDir = path.join(__dirname, 'uploads');
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
 
 // Koneksi ke MongoDB
 connectDB();

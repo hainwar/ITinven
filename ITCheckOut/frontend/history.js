@@ -7,8 +7,8 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Alert
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
 export default function Data() {
@@ -16,22 +16,25 @@ export default function Data() {
   const navigation = useNavigation();
   const { width } = Dimensions.get('window'); // Mendapatkan dimensi layar
 
+  // Fungsi untuk mengambil data history dari API
   const fetchHistory = async () => {
     try {
-      const storedData = await AsyncStorage.getItem('historyData');
-      console.log('Stored Data:', storedData); // Debug log
-      if (storedData) {
-        setHistory(JSON.parse(storedData));
+      const response = await fetch('http://localhost:3000/api/peminjaman'); // Ganti dengan URL backend yang sesuai
+      const data = await response.json();
+      if (response.ok) {
+        setHistory(data); // Mengupdate state dengan data peminjaman yang diterima
+      } else {
+        Alert.alert('Error', 'Gagal mengambil data peminjaman.');
       }
     } catch (error) {
       console.error('Error fetching history:', error);
+      Alert.alert('Error', 'Terjadi kesalahan saat mengambil data.');
     }
   };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', fetchHistory);
-    return unsubscribe;
-  }, [navigation]);
+    fetchHistory(); // Panggil fetchHistory saat komponen dimuat
+  }, []);
 
   const handleReturn = async (index) => {
     try {
@@ -39,8 +42,18 @@ export default function Data() {
       const currentDate = new Date().toLocaleDateString();
       updatedHistory[index].status = 'Telah Dikembalikan';
       updatedHistory[index].returnDate = currentDate;
-      await AsyncStorage.setItem('historyData', JSON.stringify(updatedHistory));
       setHistory(updatedHistory);
+
+      // Simpan perubahan status ke backend (opsional)
+      const response = await fetch(`https://studious-bassoon-9pvgxjqj6pjf4g6-3000.app.github.dev/api/peminjaman/${updatedHistory[index]._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Telah Dikembalikan', returnDate: currentDate }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Gagal memperbarui status');
+      }
     } catch (error) {
       console.error('Error updating return status:', error);
     }

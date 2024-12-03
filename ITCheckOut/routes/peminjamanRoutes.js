@@ -1,58 +1,40 @@
+// routes/peminjamanRoutes.js
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
-
 const router = express.Router();
-
-// Konfigurasi multer untuk menyimpan file di folder uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
-
-// Filter tipe file untuk memastikan hanya gambar yang diunggah
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true);
-  } else {
-    cb(new Error('File harus berupa gambar'), false);
-  }
-};
-
-const upload = multer({ storage, fileFilter });
-
-// Model Mongoose
 const Peminjaman = require('../models/Peminjaman');
 
-// Rute untuk menambahkan peminjaman baru
-router.post('/', upload.single('photo'), async (req, res) => {
+// Route untuk menambahkan peminjaman
+router.post('/', async (req, res) => {
   try {
-    const { name, alat, date, petugas } = req.body;
+    // Menambahkan log untuk melihat data yang diterima
+    console.log('Data yang diterima:', req.body); 
 
-    // Validasi
-    if (!name || !alat || !date || !petugas || !req.file) {
-      return res.status(400).json({ message: 'Semua field wajib diisi dan foto harus diunggah.' });
-    }
+    const { name, alat, date, petugas, photo } = req.body;
 
-    // Buat dokumen baru
-    const newPeminjaman = new Peminjaman({
+    // Buat instansi baru dari model Peminjaman
+    const peminjaman = new Peminjaman({
       name,
       alat,
       date,
       petugas,
-      photo: `/uploads/${req.file.filename}`, // Simpan path foto
+      photo,
     });
 
-    await newPeminjaman.save();
+    // Simpan peminjaman ke MongoDB
+    await peminjaman.save();
 
-    res.status(201).json({ message: 'Peminjaman berhasil ditambahkan.', data: newPeminjaman });
+    // Log setelah peminjaman berhasil disimpan
+    console.log('Peminjaman berhasil disimpan:', peminjaman); 
+
+    // Kirimkan respons sukses
+    res.status(201).json({
+      message: 'Peminjaman berhasil disimpan!',
+      data: peminjaman
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Terjadi kesalahan saat menyimpan peminjaman.', error: error.message });
+    // Menambahkan log untuk error jika terjadi masalah
+    console.error('Error:', error); 
+    res.status(500).json({ message: 'Terjadi kesalahan saat menyimpan data.', error: error.message });
   }
 });
 

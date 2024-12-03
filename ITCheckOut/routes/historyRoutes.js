@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getHistory } = require('../controllers/historyController');
+const historyController = require('../controllers/historyController');
 
-// Endpoint untuk mendapatkan riwayat berdasarkan userId
-router.get('/:userId', getHistory);
+// Route untuk mendapatkan riwayat peminjaman berdasarkan userId
+router.get('/:userId', historyController.getHistory);
 
 module.exports = router;

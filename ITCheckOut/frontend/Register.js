@@ -20,7 +20,7 @@ const Register = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch('https://special-winner-v6v65rrx5rpg2wj99-3000.app.github.dev/api/auth/register', {
+      const response = await fetch('https://studious-bassoon-9pvgxjqj6pjf4g6-3000.app.github.dev/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

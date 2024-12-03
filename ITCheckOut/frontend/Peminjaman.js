@@ -54,28 +54,42 @@ export default function Peminjaman() {
       Alert.alert('Error', 'Semua kolom wajib diisi sebelum melanjutkan.');
       return;
     }
-
-    const peminjamanData = {
-      name,
-      alat,
-      date,
-      petugas,
-      photo
-    };
-
+  
+    const peminjamanData = new FormData();
+    peminjamanData.append('name', name);
+    peminjamanData.append('alat', alat);
+    peminjamanData.append('date', date.toISOString());
+    peminjamanData.append('petugas', petugas);
+  
+    if (photo) {
+      const photoUri = { uri: photo, type: 'image/jpeg', name: 'photo.jpg' };
+      peminjamanData.append('photo', photoUri);
+    }
+  
+    console.log('Data yang akan dikirim:', peminjamanData);  // Debugging: lihat data yang akan dikirim
+  
     try {
-      const existingData = await AsyncStorage.getItem('historyData');
-      const newHistory = existingData ? JSON.parse(existingData) : [];
-      newHistory.push(peminjamanData);
-      await AsyncStorage.setItem('historyData', JSON.stringify(newHistory));
-
-      Alert.alert('Sukses', 'Data peminjaman berhasil diajukan.');
-      navigation.navigate('data');
+      const response = await fetch('https://studious-bassoon-9pvgxjqj6pjf4g6-3000.app.github.dev/api/peminjaman', {
+        method: 'POST',
+        body: peminjamanData,
+      });
+  
+      const responseData = await response.json();
+      console.log('Response:', responseData);  // Debugging: lihat respons dari server
+  
+      if (response.ok) {
+        Alert.alert('Sukses', 'Data peminjaman berhasil diajukan.');
+        navigation.navigate('Peminjaman');
+      } else {
+        Alert.alert('Error', responseData.message);
+      }
     } catch (error) {
-      Alert.alert('Error', 'Gagal menyimpan data peminjaman.');
+      Alert.alert('Error', 'Gagal mengajukan peminjaman.');
       console.error(error);
     }
   };
+  
+  
 
   const handleBackToHome = () => {
     navigation.navigate('Home');

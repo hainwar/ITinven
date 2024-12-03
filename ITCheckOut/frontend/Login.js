@@ -15,7 +15,7 @@ const Login = ({ navigation }) => {
     try {
       console.log('Login request body:', { email, password }); // Debugging log
 
-      const response = await fetch('https://special-winner-v6v65rrx5rpg2wj99-3000.app.github.dev/api/auth/login', {
+      const response = await fetch('https://studious-bassoon-9pvgxjqj6pjf4g6-3000.app.github.dev/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
